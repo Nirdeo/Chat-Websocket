@@ -3,7 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:start": "docker compose up -d",
+    "docker:stop": "docker compose down",
+    "docker:up": "docker compose up",
+    "docker:up:build": "docker compose up --build",
+    "docker:up:detach": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:down:orphans": "docker compose down --remove-orphans",
+    "docker:logs": "docker compose logs -f"
   },
   "keywords": [],
   "author": "",

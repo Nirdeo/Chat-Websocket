@@ -1,19 +1,17 @@
-FROM node:20-alpine
+ARG NODE_VERSION=22.13.1
+FROM node:${NODE_VERSION}-slim
 
 WORKDIR /app
 
-COPY package*.json ./
-
+# Install dependencies
+COPY package.json ./
 RUN npm install
 
-# In development mode, we don't need to copy the source code
-# as it will be mounted as a volume
-# COPY . .
+# Copy the source code
+COPY . .
 
-# Skip build step in development mode
-# RUN npm run build
-
+# Expose development port
 EXPOSE 3000
 
-# Use development mode with hot-reloading
+# Start development server
 CMD ["npm", "run", "dev"]

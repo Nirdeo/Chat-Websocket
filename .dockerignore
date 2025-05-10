@@ -1,0 +1,67 @@
+# Node.js dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Test and coverage artifacts
+test/
+tests/
+coverage/
+*.log
+npm-debug.log
+yarn-debug.log
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+config.local.*
+*.local.yml
+
+# Documentation and markdown
+README*
+*.md
+docs/
+
+# Temporary and OS files
+tmp/
+temp/
+*.tmp
+.DS_Store
+.local/
+local/
+
+# Project-specific configs
+*.prettierrc
+
+# Miscellaneous
+*.test
+*.spec.ts
+*.spec.js
+
+# Ignore Docker files (if not needed in build context)
+Dockerfile*
+docker-compose*
+
+# Ignore Prisma migrations (if not needed)
+prisma/migrations/
+
+# Ignore public files in front if not needed (uncomment if necessary)
+# front/public/
