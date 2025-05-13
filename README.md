@@ -1,3 +1,84 @@
+# Chat WebSocket & WebRTC
+
+Application de chat en temps réel avec fonctionnalités de messagerie textuelle et d'appels vidéo, utilisant WebSocket et WebRTC.
+
+## Fonctionnalités
+
+- Chat en temps réel entre utilisateurs
+- Appels vidéo par WebRTC
+- Création de salles de discussion
+- Interface utilisateur intuitive
+
+## Technologies utilisées
+
+- **Frontend** : Next.js, React, TailwindCSS, Socket.io-client, Simple-peer (WebRTC)
+- **Backend** : NestJS, Socket.io
+- **Docker** : Conteneurisation pour un déploiement facile
+
+## Installation et démarrage
+
+### Prérequis
+
+- Node.js (v16+)
+- Docker et Docker Compose (optionnel)
+
+### Installation sans Docker
+
+1. Cloner le dépôt :
+```bash
+git clone https://github.com/votre-utilisateur/chat-websocket.git
+cd chat-websocket
+```
+
+2. Installer les dépendances backend :
+```bash
+cd back
+npm install
+```
+
+3. Installer les dépendances frontend :
+```bash
+cd ../front
+npm install
+```
+
+### Démarrage sans Docker
+
+1. Démarrer le backend :
+```bash
+cd back
+npm run start:dev
+```
+
+2. Dans un autre terminal, démarrer le frontend :
+```bash
+cd front
+npm run dev
+```
+
+3. Accéder à l'application dans votre navigateur à l'adresse : http://localhost:3000
+
+### Démarrage avec Docker
+
+```bash
+docker-compose up -d
+```
+
+## Utilisation
+
+1. Entrez votre nom d'utilisateur
+2. Entrez ou créez un ID de salle
+3. Cliquez sur "Rejoindre"
+4. Pour démarrer un appel vidéo, cliquez sur "Démarrer l'appel"
+5. Pour terminer l'appel, cliquez sur "Terminer l'appel"
+
+## Notes concernant WebRTC
+
+L'application utilise WebRTC pour les appels vidéo. Pour une expérience optimale :
+- Utilisez Chrome, Firefox ou Edge récents
+- Accordez les permissions de caméra et microphone quand demandées
+- Sur certains réseaux avec NAT ou pare-feu restrictifs, les connexions WebRTC peuvent être bloquées
+
 # Projet Chat WebSocket
 
 Ceci est une application de chat avec un backend NestJS et un frontend Next.js.

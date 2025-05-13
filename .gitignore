@@ -68,6 +68,7 @@ docker-compose.override.yml
 # --------------------------------------------------
 # Backend compiled output
 /back/dist
+/back/node_modules
 
 # FRONTEND SPECIFIC
 # --------------------------------------------------
@@ -79,6 +80,7 @@ docker-compose.override.yml
 !/front/.yarn/plugins
 !/front/.yarn/releases
 !/front/.yarn/versions
+/front/node_modules
 
 # next.js
 /front/.next/
