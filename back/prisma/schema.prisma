@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -16,9 +15,10 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  name      String?
-  email     String?  @unique
-  password  String?
+  username  String   @unique
+  email     String   @unique
+  password  String   // hashé
+  color     String   @default("#808080") // Couleur personnalisée obligatoire
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
