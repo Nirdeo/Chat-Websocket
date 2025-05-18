@@ -8,7 +8,6 @@ import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
-    // Charge automatiquement .env (ROOT/.env ou ici prisma/.env)
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', 'prisma/.env'],

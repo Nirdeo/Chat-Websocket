@@ -5,12 +5,10 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // Utilisation de l'adaptateur Socket.IO
   app.useWebSocketAdapter(new IoAdapter(app));
   
-  // Configuration CORS plus permissive
   app.enableCors({
-    origin: true, // Autorise toutes les origines
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',

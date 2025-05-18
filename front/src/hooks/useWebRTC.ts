@@ -16,7 +16,6 @@ export const useWebRTC = (socket: Socket | null, roomId: string) => {
   const [remoteStreams, setRemoteStreams] = useState<StreamMap>({});
   const peersRef = useRef<PeerMap>({});
 
-  // Initialisation de la vidéo locale
   const initLocalStream = useCallback(async () => {
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({ 
@@ -31,7 +30,6 @@ export const useWebRTC = (socket: Socket | null, roomId: string) => {
     }
   }, []);
 
-  // Créer un peer (connexion WebRTC)
   const createPeer = useCallback((userId: string, localStream: MediaStream, initiator = false) => {
     const peer = new Peer({
       initiator,
@@ -55,7 +53,6 @@ export const useWebRTC = (socket: Socket | null, roomId: string) => {
     return peer;
   }, [socket]);
 
-  // Démarrer l'appel
   const startCall = useCallback(async () => {
     if (!socket || !roomId) return;
 
@@ -97,11 +94,9 @@ export const useWebRTC = (socket: Socket | null, roomId: string) => {
       }
     });
 
-    // Rejoindre la salle
     socket.emit('join-room', roomId);
   }, [socket, roomId, createPeer, initLocalStream]);
 
-  // Arrêter l'appel
   const endCall = useCallback(() => {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());

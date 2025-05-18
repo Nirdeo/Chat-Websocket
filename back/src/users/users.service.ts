@@ -1,10 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
 
-// Type pour les réponses d'utilisateur sans mot de passe
+type User = {
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+  color: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 type UserWithoutPassword = Omit<User, 'password'>;
+
+namespace Prisma {
+  export type UserCreateInput = {
+    username: string;
+    email: string;
+    password: string;
+    color?: string;
+  };
+  
+  export type UserUpdateInput = {
+    username?: string;
+    email?: string;
+    password?: string;
+    color?: string;
+  };
+}
+
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -47,13 +73,12 @@ export class UsersService {
         color: true,
         createdAt: true,
         updatedAt: true,
-        password: true, // Nécessaire pour l'authentification
+        password: true,
       },
     });
   }
 
   async create(data: Omit<Prisma.UserCreateInput, 'password'> & { password: string }): Promise<UserWithoutPassword> {
-    // Hash du mot de passe avant création
     const hashedPassword = await bcrypt.hash(data.password, 12);
     
     return this.prisma.user.create({
@@ -73,7 +98,6 @@ export class UsersService {
   }
 
   async update(id: string, data: Prisma.UserUpdateInput): Promise<UserWithoutPassword> {
-    // Si le mot de passe est mis à jour, il faut le hasher
     if (data.password && typeof data.password === 'string') {
       data.password = await bcrypt.hash(data.password, 12);
     }
@@ -106,7 +130,6 @@ export class UsersService {
     }) as Promise<UserWithoutPassword>;
   }
 
-  // Méthode pour vérifier un mot de passe
   async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }

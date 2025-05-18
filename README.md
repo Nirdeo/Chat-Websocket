@@ -174,6 +174,48 @@ Cela démarrera :
 - Base de données PostgreSQL (localhost:5432)
 - Adminer (http://localhost:8080)
 
+### Configuration critique des fichiers .env et Prisma
+
+Pour assurer le bon fonctionnement de l'application avec Docker, veuillez suivre ces instructions importantes :
+
+#### Configuration du backend (.env)
+
+1. Créez ou modifiez le fichier `back/.env` avec ces paramètres de connexion à la base de données :
+```
+DATABASE_URL="postgresql://user:pass@postgres:5432/db?schema=public"
+PORT=3001
+FRONT_URL="http://localhost:3000"
+```
+
+**IMPORTANT**: L'hôte dans l'URL de connexion doit être `postgres` (nom du service dans Docker Compose) et non pas `localhost`.
+
+#### Configuration de Prisma
+
+1. Après modification du fichier .env, vous devez initialiser Prisma :
+```bash
+docker compose exec backend npx prisma generate
+docker compose exec backend npx prisma migrate dev --name init_schema
+```
+
+2. Si vous modifiez le schéma Prisma (`back/prisma/schema.prisma`), vous devez régénérer le client :
+```bash
+docker compose exec backend npx prisma generate
+```
+
+3. Résolution des problèmes courants :
+   - Si vous rencontrez des erreurs de types Prisma, assurez-vous que le client a été correctement généré
+   - Pour réinitialiser la base de données : `docker compose exec backend npx prisma migrate reset --force`
+   - Après toute modification de schéma, redémarrez le backend : `docker compose restart backend`
+
+#### Configuration du fichier .env racine
+
+Assurez-vous que le fichier `.env` à la racine du projet contient ces identifiants PostgreSQL pour Docker Compose :
+```
+POSTGRES_USER=user
+POSTGRES_PASSWORD=pass
+POSTGRES_DB=db
+```
+
 ### Fonctionnalités de développement
 
 1. **Rechargement à chaud** :

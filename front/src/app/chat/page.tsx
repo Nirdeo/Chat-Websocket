@@ -7,24 +7,23 @@ import Chat from '@/components/Chat';
 import VideoChat from '@/components/VideoChat';
 import CallControls from '@/components/CallControls';
 
-// Couleurs prédéfinies pour le sélecteur
 const PREDEFINED_COLORS = [
-  '#3B82F6', // blue-500
-  '#EF4444', // red-500
-  '#10B981', // green-500
-  '#F59E0B', // amber-500
-  '#8B5CF6', // violet-500
-  '#EC4899', // pink-500
-  '#06B6D4', // cyan-500
-  '#6366F1', // indigo-500
-  '#D946EF', // fuchsia-500
-  '#F97316', // orange-500
+  '#3B82F6',
+  '#EF4444',
+  '#10B981',
+  '#F59E0B',
+  '#8B5CF6',
+  '#EC4899',
+  '#06B6D4',
+  '#6366F1',
+  '#D946EF',
+  '#F97316',
 ];
 
 export default function ChatPage() {
   const [username, setUsername] = useState<string>('');
   const [roomId, setRoomId] = useState<string>('');
-  const [userColor, setUserColor] = useState<string>('#3B82F6'); // Bleu par défaut
+  const [userColor, setUserColor] = useState<string>('#3B82F6');
   const [isJoined, setIsJoined] = useState<boolean>(false);
   const [connectionStatus, setConnectionStatus] = useState<string>('En attente de connexion...');
   
@@ -32,7 +31,6 @@ export default function ChatPage() {
   const { stream, remoteStreams, startCall, endCall } = useWebRTC(socket, roomId);
 
   useEffect(() => {
-    // Mise à jour du statut de connexion
     if (isConnected) {
       setConnectionStatus('Connecté');
     } else {
@@ -40,7 +38,6 @@ export default function ChatPage() {
     }
   }, [isConnected]);
 
-  // Rejoindre la salle
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !roomId.trim()) return;
@@ -103,7 +100,7 @@ export default function ChatPage() {
                   type="color"
                   value={userColor}
                   onChange={(e) => setUserColor(e.target.value)}
-                  className="hidden" // Caché, nous utilisons notre propre UI
+                  className="hidden"
                   id="color-picker"
                 />
                 <div className="flex flex-wrap gap-2">

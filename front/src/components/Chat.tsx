@@ -60,19 +60,15 @@ export default function Chat({ socket, roomId, username, userColor }: ChatProps)
           const isCurrentUser = msg.sender === username;
           const bgColor = isCurrentUser 
             ? userColor 
-            : (msg.color || '#e5e7eb'); // Utilise la couleur fournie ou gris par défaut
+            : (msg.color || '#e5e7eb');
           
-          // Ajuste la couleur du texte en fonction de la luminosité du fond
           const getTextColor = (hexColor: string) => {
-            // Convertit la couleur hexadécimale en RGB
             const r = parseInt(hexColor.slice(1, 3), 16);
             const g = parseInt(hexColor.slice(3, 5), 16);
             const b = parseInt(hexColor.slice(5, 7), 16);
             
-            // Calcule la luminosité (formule simplifiée)
             const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
             
-            // Si la luminosité est élevée (couleur claire), utiliser du texte foncé
             return luminance > 0.5 ? 'text-gray-800' : 'text-white';
           };
           

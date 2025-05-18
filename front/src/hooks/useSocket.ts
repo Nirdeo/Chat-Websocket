@@ -13,7 +13,6 @@ export const useSocket = () => {
     try {
       console.log('Tentative de connexion au serveur WebSocket...');
       
-      // Configuration ultra-basique
       newSocket = io('http://localhost:3001', {
         autoConnect: true,
         reconnection: true,
