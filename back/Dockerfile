@@ -7,11 +7,14 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install
 
+# Generate Prisma client
+RUN npx prisma generate
+
 # Copy the rest of the app source
 COPY . .
 
-# Expose port for development
-EXPOSE 3001
+# Expose port for development and Prisma Studio
+EXPOSE 3001 5555
 
-# Start development server with hot reload
-CMD ["npm", "run", "start:dev"]
+# Start development server with hot reload and Prisma Studio
+CMD ["sh", "-c", "npx prisma studio & npm run start:dev"]
