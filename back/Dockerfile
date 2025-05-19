@@ -1,17 +1,24 @@
+# --- Builder stage (optionnel pour rapidité et cache) ---
 ARG NODE_VERSION=22.13.1
 FROM node:${NODE_VERSION}-slim
 
 WORKDIR /app
 
-# Install dependencies
-COPY package.json ./
+# Install only prod deps first for better caching (optionnel)
+COPY package.json package-lock.json* ./
 RUN npm install
 
-# Copy the rest of the app source
+# Copy Prisma schema + migrations
+COPY prisma ./prisma
+
+# Génère le client Prisma (après l'install ET le copy de prisma/)
+RUN npx prisma generate
+
+# Copy reste du code (src, etc)
 COPY . .
 
-# Expose port for development
+# Expose le port dev
 EXPOSE 3001
 
-# Start development server with hot reload
-CMD ["npm", "run", "start:dev"]
+# Pour lancer le serveur avec hot reload (si tu utilises ts-node-dev, nodemon, etc)
+CMD ["sh", "-c", "npx prisma studio --hostname 0.0.0.0 & npm run start:dev"]
