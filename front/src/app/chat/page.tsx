@@ -1,34 +1,63 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
-import { useSocket } from '@/hooks/useSocket';
-import { useWebRTC } from '@/hooks/useWebRTC';
-import Chat from '@/components/Chat';
-import VideoChat from '@/components/VideoChat';
-import CallControls from '@/components/CallControls';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
+import Link from "next/link";
 
 interface JwtPayload {
+  id: string;
   username: string;
   color: string;
 }
 
+interface Room {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
 export default function ChatPage() {
   const router = useRouter();
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [roomName, setRoomName] = useState("");
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [username, setUsername] = useState('');
-  const [roomId, setRoomId] = useState('');
-  const [userColor, setUserColor] = useState('#3B82F6');
-  const [isJoined, setIsJoined] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState('En attente de connexion...');
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.replace("/auth/login");
+      return;
+    }
 
-  const { socket, isConnected, onlineUsersCount, joinRoom } = useSocket();
-  const { stream, remoteStreams, startCall, endCall } = useWebRTC(socket, roomId);
+    checkTokenValidity(token).then(async (isValid) => {
+      if (!isValid) {
+        router.replace("/auth/login");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3001/rooms", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement des salles");
+        }
+
+        const roomsList = await response.json();
+        setRooms(roomsList);
+      } catch (error) {
+        console.error("Erreur:", error);
+        setError("Erreur lors du chargement des salles");
+      }
+    });
+  }, [router]);
 
   async function checkTokenValidity(token: string): Promise<boolean> {
     try {
-      const res = await fetch('http://localhost:3001/auth/validate', {
+      const res = await fetch("http://localhost:3001/auth/validate", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) return false;
@@ -39,123 +68,106 @@ export default function ChatPage() {
     }
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.replace('/auth/login');
-      return;
-    }
-
-    // check de la validité du token
-    checkTokenValidity(token).then(isValid => {
-      if (!isValid) {
-        router.replace('/auth/login');
-        return;
-      }
-
-      try {
-        const decoded = jwtDecode<JwtPayload>(token);
-        if (!decoded.username || !decoded.color) {
-          router.replace('/auth/login');
-          return;
-        }
-        setUsername(decoded.username);
-        setUserColor(decoded.color);
-      } catch {
-        router.replace('/auth/login');
-      }
-    });
-  }, [router]);
-
-  useEffect(() => {
-    setConnectionStatus(isConnected ? 'Connecté' : 'Tentative de connexion au serveur...');
-  }, [isConnected]);
-
-  const handleJoinRoom = (e: React.FormEvent) => {
+  const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!roomId.trim()) return;
+    if (!roomName.trim()) return;
 
-    if (isConnected) {
-      joinRoom(roomId, username);
-      setIsJoined(true);
-    } else {
-      alert("Impossible de rejoindre la salle : la connexion au serveur n'est pas établie. Réessayez dans quelques instants.");
+    try {
+      setIsCreatingRoom(true);
+      setError(null);
+
+      const response = await fetch("http://localhost:3001/rooms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ name: roomName }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la création de la salle");
+      }
+
+      const room = await response.json();
+      router.push(`/chat/${room.id}`);
+    } catch (error) {
+      console.error("Erreur lors de la création de la salle:", error);
+      setError(error instanceof Error ? error.message : "Erreur inconnue");
+    } finally {
+      setIsCreatingRoom(false);
     }
   };
 
-  if (!isConnected && !isJoined) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>Connexion au serveur...</p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8 text-center">Chat WebSocket & WebRTC</h1>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8 text-center">Salles de Chat</h1>
 
-      {!isJoined ? (
-        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md mx-auto">
-          <h2 className="text-xl font-semibold mb-4">Rejoindre une salle</h2>
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
 
-          <div className="mb-4 flex justify-between items-center">
-            <p className={`text-sm ${isConnected ? 'text-green-500' : 'text-red-500'}`}>
-              Statut: {connectionStatus}
-            </p>
-            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              <span className="mr-1 h-2 w-2 rounded-full bg-green-500"></span>
-              {onlineUsersCount} utilisateur{onlineUsersCount !== 1 ? 's' : ''} en ligne
-            </div>
-          </div>
-
-          <form onSubmit={handleJoinRoom} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">
+            Créer une nouvelle salle
+          </h2>
+          <form onSubmit={handleCreateRoom} className="space-y-4">
             <div>
-              <label htmlFor="roomId" className="block text-sm font-medium text-gray-700">
-                ID de la salle
+              <label
+                htmlFor="roomName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Nom de la salle
               </label>
               <input
-                id="roomId"
+                id="roomName"
                 type="text"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                placeholder="Entrez le nom de la salle"
                 required
               />
             </div>
-
             <button
               type="submit"
-              className={`w-full font-bold py-2 px-4 rounded-md text-white ${
-                isConnected ? 'hover:opacity-90' : 'bg-gray-400 cursor-not-allowed opacity-70'
+              disabled={isCreatingRoom || !roomName.trim()}
+              className={`w-full py-2 px-4 rounded-md text-white font-medium ${
+                isCreatingRoom || !roomName.trim()
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
               }`}
-              disabled={!isConnected}
-              style={{ backgroundColor: isConnected ? userColor : undefined }}
             >
-              Rejoindre
+              {isCreatingRoom ? "Création..." : "Créer la salle"}
             </button>
           </form>
         </div>
-      ) : (
-        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-semibold">Salle: {roomId}</h2>
-              <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-green-500"></span>
-                {onlineUsersCount} utilisateur{onlineUsersCount !== 1 ? 's' : ''} en ligne
-              </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Salles disponibles</h2>
+          {rooms.length === 0 ? (
+            <p className="text-gray-500">Aucune salle disponible</p>
+          ) : (
+            <div className="space-y-2">
+              {rooms.map((room) => (
+                <Link
+                  key={room.id}
+                  href={`/chat/${room.id}`}
+                  className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="font-medium">{room.name}</div>
+                  <div className="text-sm text-gray-500">
+                    Créée le {new Date(room.createdAt).toLocaleDateString()}
+                  </div>
+                </Link>
+              ))}
             </div>
-
-            <VideoChat localStream={stream} remoteStreams={remoteStreams} />
-            <CallControls onStartCall={startCall} onEndCall={endCall} />
-          </div>
-
-          <div className="h-[500px]">
-            <Chat socket={socket} roomId={roomId} username={username} userColor={userColor} />
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
