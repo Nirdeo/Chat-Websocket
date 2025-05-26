@@ -23,15 +23,26 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.validateUser(dto.email, dto.password);
-    const token = this.jwtService.sign({ 
+
+    // Créer le payload du token avec tous les champs nécessaires
+    const payload = {
       sub: user.id,
+      id: user.id, // Ajout de l'ID explicitement
       username: user.username,
+      email: user.email,
       color: user.color,
-    });
+    };
+
+    const token = this.jwtService.sign(payload);
 
     return {
       access_token: token,
-      user,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        color: user.color,
+      },
     };
   }
 }

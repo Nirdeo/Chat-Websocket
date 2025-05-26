@@ -1,4 +1,12 @@
-import { Controller, Post, Body, ValidationPipe, Req, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  ValidationPipe,
+  Req,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -16,6 +24,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('validate')
   validateToken(@Req() req: Request) {
-    return { valid: true };
+    // req.user est défini par Passport JWT
+    return {
+      valid: true,
+      user: req.user,
+    };
   }
 }
