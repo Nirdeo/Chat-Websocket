@@ -2,6 +2,9 @@
 ARG NODE_VERSION=22.13.1
 FROM node:${NODE_VERSION}-slim
 
+# Install OpenSSL
+RUN apt-get update -y && apt-get install -y openssl
+
 WORKDIR /app
 
 # Install only prod deps first for better caching (optionnel)

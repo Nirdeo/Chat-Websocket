@@ -62,13 +62,15 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .docker
 docker-compose.override.yml
 /idea
-/back/generated/prisma/
 
 # BACKEND SPECIFIC
 # --------------------------------------------------
 # Backend compiled output
 /back/dist
 /back/node_modules
+
+# Keep the generated Prisma Client + query engine out of version control
+/back/src/generated/prisma
 
 # FRONTEND SPECIFIC
 # --------------------------------------------------

@@ -1,34 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PrismaClient } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 
-type User = {
-  id: string;
-  username: string;
-  email: string;
-  password: string;
-  color: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { User } from '../generated/prisma/client';
 
 type UserWithoutPassword = Omit<User, 'password'>;
-
-namespace Prisma {
-  export type UserCreateInput = {
-    username: string;
-    email: string;
-    password: string;
-    color?: string;
-  };
-  
-  export type UserUpdateInput = {
-    username?: string;
-    email?: string;
-    password?: string;
-    color?: string;
-  };
-}
 
 import * as bcrypt from 'bcryptjs';
 
